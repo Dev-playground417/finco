@@ -24,7 +24,8 @@
       </a>
 
       <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" hidden>
-        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg class="icon-menu" aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg class="icon-close" aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         <span class="visually-hidden">Menu</span>
       </button>
 
@@ -39,7 +40,7 @@
         <div class="nav-account">
           {% if user.is_authenticated %}
             <span class="nav-user">
-              <span class="avatar" aria-hidden="true">{{ user.username|slice:":1"|upper }}</span>{{ user.username }}
+              <span class="avatar" aria-hidden="true">{{ user.username|slice:":1"|upper }}</span><span class="nav-user-name">{{ user.username }}</span>
             </span>
             <form method="post" action="{% url 'accounts:logout' %}" class="inline-form">
               {% csrf_token %}
@@ -60,8 +61,8 @@
         </button>
         <a class="icon-button cart-link" href="{% url 'cart:cart_detail' %}">
           <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></svg>
-          <span class="visually-hidden">Cart</span>
-          <span class="badge" aria-label="{{ cart|length }} item{{ cart|length|pluralize }} in cart">{{ cart|length }}</span>
+          <span class="visually-hidden">Cart, {{ cart|length }} item{{ cart|length|pluralize }}</span>
+          <span class="badge" aria-hidden="true">{{ cart|length }}</span>
         </a>
       </div>
     </div>

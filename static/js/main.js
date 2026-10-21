@@ -3,33 +3,53 @@
   "use strict";
 
   // Mobile navigation: disclosure button that toggles the main nav below 760px.
+  const NAV_BREAKPOINT = "(max-width: 759.98px)";
+
   function initNavToggle() {
     const toggle = document.querySelector(".nav-toggle");
     const nav = document.getElementById("site-nav");
     if (!toggle || !nav) return;
+    document.documentElement.classList.add("nav-enhanced");
     toggle.hidden = false;
+
+    function isOpen() {
+      return nav.classList.contains("open");
+    }
 
     function setOpen(open) {
       toggle.setAttribute("aria-expanded", String(open));
       nav.classList.toggle("open", open);
     }
 
-    toggle.addEventListener("click", () => {
-      setOpen(toggle.getAttribute("aria-expanded") !== "true");
-    });
+    function isInsideMenu(node) {
+      return node === document.body || nav.contains(node) || toggle.contains(node);
+    }
+
+    toggle.addEventListener("click", () => setOpen(!isOpen()));
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && nav.classList.contains("open")) {
-        setOpen(false);
-        toggle.focus();
-      }
+      if (event.key !== "Escape" || !isOpen() || !isInsideMenu(event.target)) return;
+      event.preventDefault();
+      setOpen(false);
+      toggle.focus();
+    });
+
+    [toggle, nav].forEach((el) => {
+      el.addEventListener("focusout", (event) => {
+        const next = event.relatedTarget;
+        if (isOpen() && next && !nav.contains(next) && !toggle.contains(next)) setOpen(false);
+      });
     });
 
     document.addEventListener("click", (event) => {
-      if (nav.classList.contains("open") && !nav.contains(event.target) && !toggle.contains(event.target)) {
-        setOpen(false);
-      }
+      if (isOpen() && !nav.contains(event.target) && !toggle.contains(event.target)) setOpen(false);
     });
+
+    const mq = window.matchMedia(NAV_BREAKPOINT);
+    mq.addEventListener("change", (event) => {
+      if (!event.matches) setOpen(false);
+    });
+    window.addEventListener("pageshow", () => setOpen(false));
   }
 
   // Theme toggle: follows the OS preference until the user picks one, then remembers it.

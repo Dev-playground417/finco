@@ -50,6 +50,23 @@ class ProductViewTests(CatalogTestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class HeaderTests(CatalogTestCase):
+    def test_menu_button_controls_the_nav(self):
+        response = self.client.get(reverse("catalog:product_list"))
+        self.assertContains(response, 'aria-controls="site-nav"')
+        self.assertContains(response, 'aria-expanded="false"')
+        self.assertContains(response, 'id="site-nav"')
+
+    def test_cart_badge_has_accessible_count(self):
+        response = self.client.get(reverse("catalog:product_list"))
+        self.assertContains(response, "Cart, 0 items")
+
+        self.client.post(reverse("cart:cart_add", args=[self.product.id]), {"quantity": 2})
+        response = self.client.get(reverse("catalog:product_list"))
+        self.assertContains(response, "Cart, 2 items")
+        self.assertContains(response, '<span class="badge" aria-hidden="true">2</span>', html=True)
+
+
 class ProductApiTests(CatalogTestCase):
     def test_list_products(self):
         response = self.client.get("/api/products/")
