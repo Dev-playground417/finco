@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | ShopLite{% endblock %}
+
+{% block content %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'catalog:product_list' %}">All Products</a></li>
+    <li><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+    <li aria-current="page">{{ product.name }}</li>
+  </ol>
+</nav>
+
+<article class="product-detail">
+  <div class="product-image large">
+    {% if product.image_url %}
+      <img src="{{ product.image_url }}" alt="{{ product.name }}">
+    {% else %}
+      <span class="placeholder">{% include "includes/category_icon.html" with slug=product.category.slug %}</span>
+    {% endif %}
+  </div>
+
+  <div class="product-info">
+    <h1>{{ product.name }}</h1>
+    {% if product.description %}
+      <div class="description">{{ product.description|linebreaksbr }}</div>
+    {% endif %}
+
+    <p class="price large">$ {{ product.price }}</p>
+
+    {% if product.stock == 0 %}
+      <p class="stock-status out"><span class="dot" aria-hidden="true"></span>Out of stock</p>
+    {% elif product.stock <= 5 %}
+      <p class="stock-status low"><span class="dot" aria-hidden="true"></span>Only {{ product.stock }} left in stock</p>
+    {% else %}
+      <p class="stock-status in"><span class="dot" aria-hidden="true"></span>In stock</p>
+    {% endif %}
+
+    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="add-to-cart">
+      {% csrf_token %}
+      {% if product.in_stock %}
+        <label for="id_quantity" class="visually-hidden">Quantity</label>
+        <div class="stepper" data-stepper>
+          <input type="number" name="quantity" id="id_quantity" value="1" min="1"
+                 max="{% if product.stock < 10 %}{{ product.stock }}{% else %}10{% endif %}" inputmode="numeric" required>
+        </div>
+        <button type="submit" class="button large">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></svg>
+          Add to cart
+        </button>
+      {% else %}
+        <button type="submit" class="button large" disabled aria-describedby="oos-note">Add to cart</button>
+        <p id="oos-note" class="hint">This item is currently out of stock. Please check back soon.</p>
+      {% endif %}
+    </form>
+
+    <dl class="product-meta">
+      <div><dt>Category</dt><dd><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></dd></div>
+    </dl>
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | ShopLite{% endblock %}
+
+{% block content %}
+<ol class="steps" aria-label="Checkout progress">
+  <li class="done"><a href="{% url 'cart:cart_detail' %}">Review order</a></li>
+  <li aria-current="step"><span class="sep" aria-hidden="true"></span>Shipping</li>
+  <li><span class="sep" aria-hidden="true"></span>Confirmation</li>
+</ol>
+
+<div class="page-heading">
+  <h1>Checkout</h1>
+</div>
+
+<div class="checkout">
+  <form method="post" class="form-card js-single-submit">
+    {% csrf_token %}
+    <h2 class="form-section-title">Shipping details</h2>
+    {% if form.non_field_errors %}
+      <div class="form-error" role="alert">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+    {% endif %}
+    {% include "includes/form_field.html" with field=form.full_name %}
+    {% include "includes/form_field.html" with field=form.email %}
+    {% include "includes/form_field.html" with field=form.address %}
+    <div class="field-row">
+      {% include "includes/form_field.html" with field=form.city %}
+      {% include "includes/form_field.html" with field=form.postal_code %}
+    </div>
+    <button type="submit" class="button block large">Place order</button>
+  </form>
+
+  <aside class="summary-card sticky" aria-labelledby="summary-heading">
+    <h2 id="summary-heading">Your order</h2>
+    <ul class="summary-items">
+      {% for item in cart %}
+        <li>
+          <span><span class="qty">{{ item.quantity }}&times;</span> {{ item.product.name }}</span>
+          <span>${{ item.total_price }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    <dl class="summary-rows">
+      <div class="summary-total"><dt>Total</dt><dd>${{ cart.get_total_price }}</dd></div>
+    </dl>
+    <a href="{% url 'cart:cart_detail' %}" class="summary-edit">Edit cart</a>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+db.sqlite3
+/staticfiles/
+/media/
+.coverage
+htmlcov/
+.pytest_cache/
+.idea/
+.vscode/
+
+# Evaluator-only material - never share with candidates
+evaluator/
+
+# Local documentation (screenshots etc.) - not pushed
+/docs/

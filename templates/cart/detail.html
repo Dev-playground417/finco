@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Your cart | ShopLite{% endblock %}
+
+{% block content %}
+<ol class="steps" aria-label="Checkout progress">
+  <li aria-current="step">Review order</li>
+  <li><span class="sep" aria-hidden="true"></span>Shipping</li>
+  <li><span class="sep" aria-hidden="true"></span>Confirmation</li>
+</ol>
+
+<div class="page-heading">
+  <h1>Your shopping cart</h1>
+  {% if cart|length %}<p class="muted">{{ cart|length }} item{{ cart|length|pluralize }}</p>{% endif %}
+</div>
+
+{% if cart|length %}
+  <div class="cart-layout">
+    <ul class="cart-lines">
+      {% for item in items %}
+        {% with product=item.product %}
+        <li class="cart-line">
+          <a href="{{ product.get_absolute_url }}" class="cart-thumb" tabindex="-1" aria-hidden="true">
+            {% if product.image_url %}
+              <img src="{{ product.image_url }}" alt="" loading="lazy">
+            {% else %}
+              <span class="placeholder">{% include "includes/category_icon.html" with slug=product.category.slug %}</span>
+            {% endif %}
+          </a>
+
+          <div class="cart-line-info">
+            <a href="{{ product.get_absolute_url }}" class="cart-line-name">{{ product.name }}</a>
+            <span class="muted">${{ item.price }} each</span>
+          </div>
+
+          <form action="{% url 'cart:cart_add' product.id %}" method="post" class="cart-qty">
+            {% csrf_token %}
+            <label for="qty-{{ product.id }}" class="visually-hidden">Quantity for {{ product.name }}</label>
+            {% with field=item.update_quantity_form.quantity %}
+              <select name="{{ field.html_name }}" id="qty-{{ product.id }}">
+                {% for value, label in field.field.choices %}
+                  <option value="{{ value }}"{% if value == item.quantity %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            {% endwith %}
+            {{ item.update_quantity_form.override }}
+            <button type="submit" class="button small secondary">Update</button>
+          </form>
+
+          <p class="cart-line-total">${{ item.total_price }}</p>
+
+          <form action="{% url 'cart:cart_remove' product.id %}" method="post" class="cart-remove">
+            {% csrf_token %}
+            <button type="submit" class="link-button danger">Remove<span class="visually-hidden"> {{ product.name }}</span></button>
+          </form>
+        </li>
+        {% endwith %}
+      {% endfor %}
+    </ul>
+
+    <aside class="summary-card" aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Order summary</h2>
+      <dl class="summary-rows">
+        <div><dt>Subtotal</dt><dd>${{ cart.get_total_price }}</dd></div>
+        <div><dt>Shipping</dt><dd class="muted">Calculated at checkout</dd></div>
+        <div class="summary-total"><dt>Total</dt><dd>${{ cart.get_total_price }}</dd></div>
+      </dl>
+      <a href="{% url 'orders:order_create' %}" class="button block large">Proceed to checkout</a>
+      <a href="{% url 'catalog:product_list' %}" class="button block secondary">Continue shopping</a>
+    </aside>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <svg aria-hidden="true" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/></svg>
+    <p class="empty-title">Your cart is empty</p>
+    <p>Looks like you haven't added anything yet.</p>
+    <a href="{% url 'catalog:product_list' %}" class="button">Browse products</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Log in | ShopLite{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="form-card narrow">
+    <h1>Welcome back</h1>
+    <p class="muted form-intro">Log in to check out and track your orders.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="form-error" role="alert">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+      {% endif %}
+      {% for field in form %}
+        {% include "includes/form_field.html" with field=field %}
+      {% endfor %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="button block large">Log in</button>
+    </form>
+    <p class="form-switch">No account yet? <a href="{% url 'accounts:register' %}">Create one</a></p>
+  </div>
+</div>
+{% endblock %}
